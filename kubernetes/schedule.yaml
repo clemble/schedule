@@ -1,0 +1,25 @@
+kind: ReplicationController
+id: schedule-controller
+apiVersion: v1beta1
+desiredState:
+  replicas: 1
+  replicaSelector: 
+    name: schedule
+    version: v1
+  podTemplate:
+    labels:
+      name : schedule
+      version: v1
+    desiredState:
+      manifest:
+        containers:
+          - name: schedule
+            image: clemble/schedule:latest
+            imagePullPolicy : PullAlways
+            ports:
+              - containerPort: 10015
+                hostPort: 10015
+                protocol: TCP
+            labels:
+              name : schedule
+              version: v1
