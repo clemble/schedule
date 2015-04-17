@@ -13,12 +13,15 @@ import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.impl.StdSchedulerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.env.Environment;
 
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.Properties;
 
 /**
  * Created by mavarazy on 11/8/14.
@@ -62,13 +65,22 @@ public class ScheduleSpringConfiguration implements SpringConfiguration {
 
 
     @Bean(destroyMethod = "shutdown")
-    public Scheduler scheduler(ScheduleJobExecutorFactory jobExecutorFactory) throws SchedulerException {
-        StdSchedulerFactory schedulerFactory = new StdSchedulerFactory();
+    public Scheduler scheduler(
+            ScheduleJobExecutorFactory jobExecutorFactory,
+            @Value("${MONGO_SERVICE_SERVICE_HOST}") String host,
+            @Value("${MONGO_SERVICE_SERVICE_PORT}") int port) throws SchedulerException, IOException {
+        // Step 1. Read mongo properties
+        Properties properties = new Properties();
         if (Arrays.asList(env.getActiveProfiles()).contains("cloud")) {
-            schedulerFactory.initialize(getClass().getResourceAsStream("/quartz.cloud.properties"));
+            properties.load(getClass().getResourceAsStream("/quartz.cloud.properties"));
         } else {
-            schedulerFactory.initialize(getClass().getResourceAsStream("/quartz.properties"));
+            properties.load(getClass().getResourceAsStream("/quartz.properties"));
         }
+        properties.setProperty("org.quartz.jobStore.mongoUri", "mongodb://" + host + ":" + port);
+        // Step 2. Initialize Schedule factory
+        StdSchedulerFactory schedulerFactory = new StdSchedulerFactory();
+        schedulerFactory.initialize(properties);
+        // Step 3. Create new scheduler
         Scheduler scheduler = schedulerFactory.getScheduler();
         scheduler.setJobFactory(jobExecutorFactory);
         scheduler.start();
