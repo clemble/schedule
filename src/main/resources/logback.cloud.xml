@@ -32,6 +32,9 @@
         </syslogConfig>
     </appender>
 
+    <logger name="com.novemberain.quartz.mongodb" level="INFO"/>
+    <logger name="org.quartz.core" level="INFO"/>
+
     <root level="DEBUG">
         <appender-ref ref="FILE" />
         <appender-ref ref="SYSLOG-UDP" />
