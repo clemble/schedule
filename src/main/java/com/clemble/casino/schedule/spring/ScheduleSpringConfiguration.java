@@ -5,7 +5,6 @@ import com.clemble.casino.schedule.job.ScheduleJobExecutorFactory;
 import com.clemble.casino.schedule.listener.SystemAddJobScheduleEventListener;
 import com.clemble.casino.schedule.listener.SystemRemoveJobScheduleEventListener;
 import com.clemble.casino.server.player.notification.SystemNotificationService;
-import com.clemble.casino.server.player.notification.SystemNotificationServiceListener;
 import com.clemble.casino.server.spring.common.CommonSpringConfiguration;
 import com.clemble.casino.server.spring.common.SpringConfiguration;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -41,19 +40,16 @@ public class ScheduleSpringConfiguration implements SpringConfiguration {
     @Bean
     public SystemAddJobScheduleEventListener scheduleAddJobListener(
         ObjectMapper objectMapper,
-        Scheduler scheduler,
-        SystemNotificationServiceListener notificationServiceListener) {
+        Scheduler scheduler) {
         SystemAddJobScheduleEventListener systemAddJobScheduleEventListener = new SystemAddJobScheduleEventListener(objectMapper, scheduler);
-        notificationServiceListener.subscribe(systemAddJobScheduleEventListener);
         return systemAddJobScheduleEventListener;
     }
 
     @Bean
     public SystemRemoveJobScheduleEventListener scheduleRemoveJobListener(
-        Scheduler scheduler,
-        SystemNotificationServiceListener notificationServiceListener) {
+        Scheduler scheduler
+    ) {
         SystemRemoveJobScheduleEventListener systemRemoveJobScheduleEventListener = new SystemRemoveJobScheduleEventListener(scheduler);
-        notificationServiceListener.subscribe(systemRemoveJobScheduleEventListener);
         return systemRemoveJobScheduleEventListener;
     }
 
